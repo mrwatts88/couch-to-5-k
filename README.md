@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Couch to 5K
 
-## Getting Started
+Personal, single-user Couch to 5K PWA for iPhone. Static Next.js export, no backend;
+progress and settings live in `localStorage` with a JSON export/import as a backup.
 
-First, run the development server:
+## Plan
 
-```bash
+Nine weeks × three runs, from the NHS Couch to 5K plan. Every run opens with a
+5-minute warm-up walk and closes with a 5-minute cool-down walk.
+
+| Week | Body of the run |
+| ---- | --------------- |
+| 1 | Run 1:00 / walk 1:30 × 8 |
+| 2 | Run 1:30 / walk 2:00 × 6 |
+| 3 | Run 1:30, walk 1:30, run 3:00, walk 3:00, run 1:30, walk 1:30, run 3:00 |
+| 4 | Run 3, walk 1:30, run 5, walk 2:30, run 3, walk 1:30, run 5 |
+| 5 | R1: 5/3/5/3/5 · R2: 8/5/8 · R3: run 20 |
+| 6 | R1: 5/3/8/3/5 · R2: 10/3/10 · R3: run 25 |
+| 7 | Run 25 |
+| 8 | Run 28 |
+| 9 | Run 30 |
+
+Data lives in `lib/plan.ts`.
+
+## Layout
+
+- `lib/plan.ts` — workouts as segment lists.
+- `lib/storage.ts` — localStorage store (`useStore`), completed runs, settings, in-progress session.
+- `lib/audio.ts` — Web Audio beeps, speech cues, iOS audio-session unlock and silent keep-alive loop.
+- `lib/useWorkoutTimer.ts` — wall-clock timer, cue scheduling, wake lock, pause/skip/back/resume.
+- `components/WorkoutScreen.tsx` — the run screen.
+- `components/Home.tsx` — plan grid, next-up card, settings, backup.
+- `public/sw.js` — offline-first service worker (registered in production only).
+
+## Dev
+
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build   # static export to out/
+npx vercel deploy --prod
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## iPhone notes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Install via Safari → Share → Add to Home Screen. Open from the icon for standalone mode and offline use.
+- The screen wake lock keeps the display on during a run; that is the reliable path for cues on iOS.
+- Timing is wall-clock based, so backgrounding the app doesn't drift the timer; an unfinished run can be resumed from the home screen.
